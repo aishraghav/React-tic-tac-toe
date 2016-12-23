@@ -2,37 +2,48 @@ import React, { Component } from 'react';
 import './Game.css';
 
 
-class Square extends Component {
+// class Square extends Component {
+//
+//   // constructor(){
+//   //   super();
+//   //   this.state = {
+//   //     value: null,
+//   //   };
+//   // }
+//
+//   render() {
+//     const turn = true;
+//
+//     //TODO implement the functionality
+//     function fillValue(){
+//       //console.log(turn);
+//       if (turn){
+//         this.setState({value: 'X'});
+//       }else{
+//         this.setState({value: 'O'});
+//       }
+//       //turn = !turn;
+//     };
+//
+//     return (
+//       //<button className="square" onClick={()=> this.setState({value: this.props.value})}>
+//       //<button className="square" onClick="fillValue();">
+//       //<button className="square" onClick={()=> this.setState({value: this.props.test_i})}>
+//       //<button className="square" onClick={()=> this.setState({value: 'X'})}>
+//       <button className="square" onClick={() => this.props.onClick()}>
+//         {this.props.value}
+//
+//       </button>
+//     );
+//   }
+// }
 
-  constructor(){
-    super();
-    this.state = {
-      value: null,
-    };
-  }
-
-  render() {
-    const turn = true;
-
-    //TODO implement the functionality
-    function fillValue(){
-      //console.log(turn);
-      if (turn){
-        this.setState({value: 'X'});
-      }else{
-        this.setState({value: 'O'});
-      }
-      //turn = !turn;
-    };
-
-    return (
-      //<button className="square" onClick={()=> this.setState({value: this.props.value})}>
-      //<button className="square" onClick="fillValue();">
-      <button className="square" onClick={()=> this.setState({value: 'X'})}>
-        {this.state.value}
-      </button>
-    );
-  }
+function Square(props) {
+  return (
+    <button className="square" onClick={() => props.onClick()}>
+      {props.value}
+    </button>
+  );
 }
 
 class Board extends Component {
@@ -40,14 +51,42 @@ class Board extends Component {
     super();
     this.state = {
       squares: Array(9).fill(null),
+      xIsNext: true,
+      status: 'X',
     };
   }
+
+  handleClick(i){
+    const squares = this.state.squares.slice();
+    if (calculateWinner(squares) || squares[i]){
+      return ;
+    }
+    const nextPlayer = this.state.xIsNext? 'O' : 'X';
+    squares[i] = this.state.xIsNext? 'X' : 'O';
+    //Sets the value in the state.
+    this.setState({
+      squares: squares,
+      xIsNext: !this.state.xIsNext,
+      status: nextPlayer,
+    });
+  }
+
   renderSquare(i) {
     //return <Square value={i}/>;
-    return <Square value={this.state.squares[i]}/>;
+    //return <Square value={this.state.squares[i]}/>;
+    return <Square value={this.state.squares[i]} onClick={() => this.handleClick(i)} />;
   }
+
   render() {
-    const status = 'Next player: X';
+    const winner = calculateWinner(this.state.squares);
+    let status;
+    if (winner){
+      status = 'Winner: ' + winner;
+    }else{
+      status = 'Next player: ' + this.state.status;
+    }
+    status += " Moves: "+ calculateMoves(this.state.squares);
+    //const status = 'Next player: ' + this.state.status;
     return (
       <div>
         <div className="status">{status}</div>
@@ -117,6 +156,16 @@ function calculateWinner(squares) {
     }
   }
   return null;
+}
+
+function calculateMoves(squares){
+  let count = 0;
+  for (let i=0; i<squares.length; i++){
+    if (squares[i]){
+      count += 1;
+    }
+  }
+  return count;
 }
 
 
